@@ -3,72 +3,110 @@
 const express = require('express');
 const fs = require('fs');
 const path = require('path');
-const db = require('./db/db.json');
+const db = require('./db/notes.json');
+const { v4: uuidv4 } = require('uuid');
 
 // PORT and app variables
 const PORT = process.env.PORT || 3001;
 const app = express();
 
-// 
+// Set up Express
 app.use(express.json());
 app.use(express.urlencoded({ extended: true}));
 app.use(express.static('public'));
 
-// Display Routes
+
+
+ //\\____ Display Routes ____//\\
+//--\\______________________//--\\
 
 // index.html (root) // Landing page
 app.get('/', (req, res) =>
-  res.sendFile(path.join(__dirname, 'public/index.html'))
+  res
+    .status(200)
+    .sendFile(path.join(__dirname, 'public/index.html'))
 );
 
 // notes.html (main) // Note input and saved notes
 app.get('/notes', (req, res) =>
-  res.sendFile(path.join(__dirname, 'public/notes.html'))
+  res
+    .status(200)
+    .sendFile(path.join(__dirname, 'public/notes.html'))
 );
 
-// API Routes
+ //\\____ API Routes ____//\\
+//--\\__________________//--\\
 
 // Get all Notes
 app.get('/api/notes', (req, res) => {
-    res.json(db.slice(1));
+    res.json(db);
 });
 
-
-
+// Save/Load a note
 app.post('/api/notes', (req, res) => {
-  const newNote = createNote(req.body, db)
-  res.json(newNote);
+  console.info(`${req.method} request received to add a note`);
+
+  const { title, text } = req.body;
+
+  if (title && text) {
+    const newNote = {
+      title,
+      text,
+      'id': uuidv4(),
+    };
+
+    fs.readFile('./db/notes.json', 'utf8', (err, data) => {
+      if (err) {
+        console.error(err);
+      } else {
+
+        const parsedNotes = JSON.parse(data);
+        parsedNotes.push(newNote);
+
+        fs.writeFile(
+          path.join(__dirname, './db/notes.json'),
+          JSON.stringify(parsedNotes, null, 2),
+          (writeErr) =>
+            writeErr
+              ? console.error(writeErr)
+              : console.info('Successfully updated notes!')
+        );
+      }
+    });
+
+    const response = {
+      status: 'success',
+      body: newNote,
+    };
+
+    console.log(response);
+    res.status(201).json(response);
+  } else {
+    res.status(500).json('Error in posting note');
+  }
 });
 
-// Turn request into JSON
-
-const createNote = (body, notesArr) => {
-  const newNote = body;
-  if (!Array.isArray(notesArr)) { // look into this kind of error handling
-    notesArr = [];
+app.delete('/api/notes/:id', (req, res) => {
+  deleteNote(req.params.id, db);
+})
+const deleteNote = (id, notesDb) => {
+  for (i=0; i <= notesDb.length; i++) {
+    let note = notesDb[i];
+    if (note.id === id) {
+      notesDb.splice(i, 1);
+      fs.writeFile(
+        path.join(__dirname, './db/notes.json'),
+        JSON.stringify(notesDb, null, 2),
+        (writeErr) =>
+            writeErr
+              ? console.error(writeErr)
+              : console.info('Successfully deleted note!')
+        );
+    }
   }
-  if (notesArr.length === 0) {
-    notesArr.push(0);
-  }
-
-  // --------------------------------uncomment when delete is done
-  // body.id = notesArr.length;
-  notesArr[0]++
-  notesArr.push(newNote);
-
-  fs.writeFileSync(
-    path.join(__dirname, "./db/db.json"),
-    JSON.stringify(notesArr, null, 2)
-  )
-  return newNote;
 }
 
-
-
-
-
-
-// Listener
+// Port Listener
 app.listen(PORT, function() {
     console.log("App listening on PORT: " + PORT)
 })
