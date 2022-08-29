@@ -39,27 +39,28 @@ app.get('/notes', (req, res) =>
 
 // Get all Notes
 app.get('/api/notes', (req, res) => {
-    res.json(db);
+    res
+      .status(200)
+      .json(db)
 });
 
 // Save/Load a note
 app.post('/api/notes', (req, res) => {
-  console.info(`${req.method} request received to add a note`);
 
+  // set up variable from req.body to include uuid
   const { title, text } = req.body;
 
   if (title && text) {
     const newNote = {
       title,
       text,
-      'id': uuidv4(),
+      'id': uuidv4()
     };
-
+    // write the req to notes db in json format
     fs.readFile('./db/notes.json', 'utf8', (err, data) => {
       if (err) {
         console.error(err);
       } else {
-
         const parsedNotes = JSON.parse(data);
         parsedNotes.push(newNote);
 
