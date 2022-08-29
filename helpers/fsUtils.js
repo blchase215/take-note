@@ -20,16 +20,19 @@ const readAndAppend = (content, file) => {
   });
 };
 
-const readAndRemove = (deleteID, file) => {
+const readAndDelete = (xId, file) => {
   fs.readFile(file, 'utf8', (err, data) => {
     if (err) {
       console.error(err);
     } else {
       const parsedData = JSON.parse(data);
-      parsedData.splice(parsedData.findIndex(({id}) => id === deleteID), 1);
+      for (i = 0; i <= file.length; i++) {
+        let note = file[i];
+        if (note.id === xId) {
+          file.splice(i, 1);
       writeToFile(file, parsedData);
     }
   });
 };
 
-module.exports = { readFromFile, writeToFile, readAndAppend };
+module.exports = { readFromFile, writeToFile, readAndAppend, readAndDelete };
