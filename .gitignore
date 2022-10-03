@@ -2,7 +2,12 @@
 /psuedocode
 psuedo.js
 
+#unused folders
 /helpers
+fsUtils.js
+/routes
+apiRoutes.js
+index.js
 
 # Logs
 logs
