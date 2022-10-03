@@ -1,40 +1,17 @@
-const express = require('express');
+const router = require('express').Router();
+const fs = require('fs');
 const path = require('path');
-// const api = require('./routes/index.js');
-
-const PORT = process.env.PORT || 3001;
-
-const app = express();
-
-app.use(express.json());
-app.use(express.urlencoded({ extended: true}));
-// app.use('/api', api);
-
-app.use(express.static('public'));
-
- //\\____ Display Routes ____//\\
-//--\\______________________//--\\
-
-// index.html (root) // Landing page
-app.get('/', (req, res) =>
-  res.sendFile(path.join(__dirname, 'public/index.html'))
-);
-
-// notes.html (main) // Note input and saved notes
-app.get('/notes', (req, res) =>
-  res.sendFile(path.join(__dirname, 'public/notes.html'))
-);
-
- //\\______ API Routes ______//\\
-//--\\______________________//--\\
+const db = require('../db/notes.json');
+const { v4: uuidv4 } = require('uuid');
+const { readFromFile, readAndAppend, readAndDelete } = require('../helpers/fsUtils')
 
 // Get all Notes
-app.get('/api/notes', (req, res) => {
+router.get('/api/notes', (req, res) => {
   readFromFile(db).then((data) => res.json(JSON.parse(data)))
 });
 
 // Save/Load a note
-app.post('/api/notes', (req, res) => {
+router.post('/api/notes', (req, res) => {
 
   // set up variable from req.body to include uuid
   const { title, text } = req.body;
@@ -76,7 +53,7 @@ app.post('/api/notes', (req, res) => {
   }
 });
 
-app.delete('/api/notes/:id', (req, res) => {
+router.delete('/api/notes/:id', (req, res) => {
   deleteNote(req.params.id, db);
 })
 const deleteNote = (id, notesDb) => {
@@ -95,7 +72,3 @@ const deleteNote = (id, notesDb) => {
     }
   }
 }
-
-app.listen(PORT, () =>
-    console.log("App listening on PORT: " + PORT)
-);

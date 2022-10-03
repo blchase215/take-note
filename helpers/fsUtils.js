@@ -3,36 +3,39 @@ const util = require('util');
 
 const readFromFile = util.promisify(fs.readFile);
 
-const writeToFile = (destination, content) =>
-  fs.writeFile(destination, JSON.stringify(content, null, 4), (err) =>
-    err ? console.error(err) : console.info(`\nData written to ${destination}`)
+const writeToFile = (notesDb, newNote) =>
+  fs.writeFile(notesDb, JSON.stringify(newNote, null, 4), (err) =>
+    err ? console.error(err) : console.info(`\nData written to ${notesDb}`)
   );
 
-const readAndAppend = (content, file) => {
-  fs.readFile(file, 'utf8', (err, data) => {
+const readAndAppend = (newNote, notesDb) => {
+  fs.readFile(notesDb, 'utf8', (err, data) => {
     if (err) {
       console.error(err);
     } else {
       const parsedData = JSON.parse(data);
-      parsedData.push(content);
-      writeToFile(file, parsedData);
+      parsedData.push(newNote);
+      writeToFile(notesDb, parsedData);
     }
   });
 };
 
-const readAndDelete = (xId, file) => {
-  fs.readFile(file, 'utf8', (err, data) => {
+const readAndDelete = (targetId, notesDb) => {
+  fs.readFile(notesDb, 'utf8', (err, data) => {
     if (err) {
       console.error(err);
     } else {
       const parsedData = JSON.parse(data);
-      for (i = 0; i <= file.length; i++) {
-        let note = file[i];
-        if (note.id === xId) {
-          file.splice(i, 1);
-      writeToFile(file, parsedData);
+      for (i = 0; i <= notesDb.length; i++) {
+        let note = notesDb[i];
+        if (note.id === targetId) {
+          notesDb.splice(i, 1);
+          return;
+        }
+      }
+      writeToFile(notesDb, parsedData);
     }
   });
 };
 
-module.exports = { readFromFile, writeToFile, readAndAppend, readAndDelete };
+module.exports = { readFromFile, readAndAppend, readAndDelete };
