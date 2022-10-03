@@ -1,13 +1,12 @@
-// const router = require('express').Router();
 // const fs = require('fs');
+// const router = require('express').Router();
 // const path = require('path');
 // const db = require('../db/notes.json');
 // const { v4: uuidv4 } = require('uuid');
-// const { readFromFile, readAndAppend, readAndDelete } = require('../helpers/fsUtils')
 
 // // Get all Notes
 // router.get('/api/notes', (req, res) => {
-//   readFromFile(db).then((data) => res.json(JSON.parse(data)))
+//     res.json(db)
 // });
 
 // // Save/Load a note
@@ -16,7 +15,7 @@
 //   // set up variable from req.body to include uuid
 //   const { title, text } = req.body;
 
-//   if (req.body) {
+//   if (title && text) {
 //     const newNote = {
 //       title,
 //       text,

@@ -31,7 +31,7 @@ app.get('/notes', (req, res) =>
 
 // Get all Notes
 app.get('/api/notes', (req, res) => {
-  readFromFile(db).then((data) => res.json(JSON.parse(data)))
+  res.json(db)
 });
 
 // Save/Load a note
